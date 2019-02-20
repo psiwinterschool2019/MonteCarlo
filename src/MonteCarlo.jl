@@ -103,7 +103,7 @@ function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float
         # n_sweeps of N flips (one sweep)
         for i  in 1:n_sweeps
             for j in 1:N
-                bool = update!(config, beta, h, Jx, Jy)
+                bool = update!(config, β, h, Jx, Jy)
                 if bool
                     accept_ratio += 1.0
                 end
