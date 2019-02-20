@@ -68,6 +68,13 @@ function magnetization(c::AbstractMatrix{Bool})
     return mean_magnetization
 end
 
+function meas_mag(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64)  
+    """
+    returns: mean magnetization of the spin configuration
+    """
+    return magnetization(c)
+end
+
 function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
     
     nbins = length(v)÷bin_length
