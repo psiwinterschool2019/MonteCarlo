@@ -12,7 +12,7 @@ function local_energy(c::AbstractMatrix{Bool}, nx::Int, ny::Int, h::Float64, Jx:
     Lx,Ly = size(c)
     nb1, nb2, nb3, nb4 = neighbours(nx, ny, Lx, Ly)
     b = c[nx,ny]
-    s = -1*spin(b)
+    s = spin(b)
     sn_x = spin(c[nb1[1], nb1[2]]) + spin(c[nb2[1], nb2[2]])
     sn_y = spin(c[nb3[1], nb3[2]]) + spin(c[nb4[1], nb4[2]])
     E = -(h + Jx * sn_x + Jy * sn_y)*s
