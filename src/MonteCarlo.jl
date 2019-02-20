@@ -37,9 +37,27 @@ function energy(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64  )
     return E
 end
 
+function magnetization(c::AbstractMatrix{Bool})  
+    """
+    returns: mean magnetization of the spin configuration
+    """
+    Lx,Ly=size(c)
+    N=Lx*Ly
+    mean_magnetization = sum(spin.(c))/N
+   
+    return mean_magnetization
+end
+
+function meas_mag(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64)  
+    """
+    returns: mean magnetization of the spin configuration
+    """
+    return magnetization(c)
+end
+
 function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, Jy::Float64)
     """
-  Do one sweep (random one single-spin update):
+  Do one flip (random one single-spin update):
   returns: true if the metropolis move is accepted or false otherwise
     """
     Lx,Ly = size(c)
@@ -57,22 +75,48 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, 
     
 end
 
-function magnetization(c::AbstractMatrix{Bool})  
-    """
-    returns: mean magnetization of the spin configuration
-    """
-    Lx,Ly=size(c)
-    N=Lx*Ly
-    mean_magnetization = sum(spin.(c))/N
-   
-    return mean_magnetization
-end
-
-function meas_mag(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64)  
-    """
-    returns: mean magnetization of the spin configuration
-    """
-    return magnetization(c)
+function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float64, Jy::Float64, h::Float64; c_init = nothing, meas_func = nothing)
+        #sampledata that takes the following as arguments
+        # Lx, Ly: dimensions of system
+        #n_sweeps: number of sweeps
+        #β: 1/Temperature
+        #
+        # Jx, Jy: couplings
+        #h: external field strength
+        # c_init: BitArray representing initial configuration
+        # meas_func: Function that calculates observable for each config
+        #---------------------------------------------------------------
+        """
+            returns measured data array and acceptance ratio
+        """
+        if c_init == nothing
+            c_init = bitrand(Lx,Ly)
+        end
+        if (Lx, Ly) != size(c_init)
+            @error "Wrong configuration size or choice"
+        end
+        #work on copy of initial configuration
+        config = copy(c_init)
+        N = Lx*Ly
+        data_list = zeros(n_sweeps)
+        accept_ratio = 0.0
+        # n_sweeps of N flips (one sweep)
+        for i  in 1:n_sweeps
+            for j in 1:N
+                bool = update!(config, beta, h, Jx, Jy)
+                if bool
+                    accept_ratio += 1.0
+                end
+            end
+            if meas_func == nothing
+                observable = NaN
+            else
+                observable = meas_func(config, h, Jx, Jy)
+            end
+            data_list[i] = observable
+        end
+        accept_ratio = accept_ratio/(N*n_sweeps)
+        return data_list, accept_ratio
 end
 
 function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
