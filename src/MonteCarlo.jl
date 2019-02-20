@@ -9,6 +9,9 @@ neighbours(nx::Int, ny::Int, Lx::Int, Ly::Int) = ((mod1(nx+1, Lx), ny), (mod1(nx
     (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
 
 function local_energy(c::AbstractMatrix{Bool}, nx::Int, ny::Int, h::Float64, Jx::Float64, Jy::Float64)
+    """
+  returns: the local energy (wrt to nearest neighbours) of the spin configuration
+    """
     Lx,Ly = size(c)
     nb1, nb2, nb3, nb4 = neighbours(nx, ny, Lx, Ly)
     b = c[nx,ny]
@@ -20,6 +23,9 @@ function local_energy(c::AbstractMatrix{Bool}, nx::Int, ny::Int, h::Float64, Jx:
 end
 
 function energy(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64  )
+    """
+  returns: the total energy of the spin configuration
+    """
     Lx,Ly= size(c)
     E=0.0
     m = spin.(c) 
