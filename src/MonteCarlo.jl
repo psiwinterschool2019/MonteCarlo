@@ -31,6 +31,22 @@ function energy(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64  )
     return E
 end
 
+function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, Jy::Float64)
+    Lx,Ly = size(c)
+    nx = rand(1:Lx)
+    ny = rand(1:Ly)
+    deltaE = - 2*local_energy(c,nx,ny,h,Jx,Jy)
+    
+    w = exp(-β * deltaE)
+    bool= false
+    if ( rand() < w)
+        c[nx,ny] = !c[nx,ny]
+        bool= true
+    end
+    return  bool
+    
+end
+
 function magnetization(c::BitArray{2})::Float64  #This is the magnetization function
     Lx,Ly=size(c)
     N=Lx*Ly
