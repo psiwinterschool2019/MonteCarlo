@@ -1,7 +1,7 @@
+module MonteCarlo
+
 using Random
 using Statistics
-
-module MonteCarlo
 
 spin(b::Bool) = Float64(2 * b - 1)
 
