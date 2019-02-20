@@ -137,7 +137,6 @@ function meas_stat(v_binned::Array{T,1}) where T <: Number
     var = sum((v_binned .- μ).^2)/(length(v_binned) -1)
     
     return (μ, sqrt(var))
-    
-
+end
 
 end
