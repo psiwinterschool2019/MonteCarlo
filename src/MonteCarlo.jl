@@ -48,12 +48,12 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, 
     deltaE = - 2*local_energy(c,nx,ny,h,Jx,Jy)
     
     w = exp(-β * deltaE)
-    bool= false
+    accepted = false
     if ( rand() < w)
         c[nx,ny] = !c[nx,ny] #Flipping spin at nx,ny
-        bool= true
+        accepted = true
     end
-    return  bool
+    return accepted
     
 end
 
