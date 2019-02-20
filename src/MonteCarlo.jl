@@ -11,10 +11,6 @@ function magnetization(c::BitArray{2})::Float64  #This is the magnetization func
     (2Nup-N)/N
 end
 
-end
-
-########################################################################
-
 function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
     
     nbins = length(v)÷bin_length
@@ -27,4 +23,4 @@ function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
     return output
 end
 
-########################################################################
+end
