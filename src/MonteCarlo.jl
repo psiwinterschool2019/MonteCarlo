@@ -45,7 +45,7 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, 
     Lx,Ly = size(c)
     nx = rand(1:Lx)
     ny = rand(1:Ly)
-    deltaE = - 2*local_energy(c,nx,ny,h,Jx,Jy)
+    deltaE = - 2*local_energy(c,nx,ny,h,Jx,Jy) #variation
     
     w = exp(-β * deltaE)
     accepted = false
@@ -57,12 +57,15 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, 
     
 end
 
-function magnetization(c::BitArray{2})::Float64  #This is the magnetization function
+function magnetization(c::AbstractMatrix{Bool})  
+    """
+    returns: mean magnetization of the spin configuration
+    """
     Lx,Ly=size(c)
     N=Lx*Ly
-    Nup=count(c)
-    
-    (2Nup-N)/N
+    mean_magnetization = sum(spin.(c))/N
+   
+    return mean_magnetization
 end
 
 function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
@@ -75,15 +78,6 @@ function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
     end
         
     return output
-end
-
-function meas_stat(v_binned::Array{T,1}) where T <: Number
-    
-    μ = mean(v_binned)
-    var = sum((v_binned .- μ).^2)/(length(v_binned) -1)
-    
-    return (μ, sqrt(var))
-    
 end
 
 end
