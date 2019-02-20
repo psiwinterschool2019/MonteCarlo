@@ -32,6 +32,10 @@ function energy(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64  )
 end
 
 function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, Jy::Float64)
+    """
+  Do one sweep (random one single-spin update):
+  returns: true if the metropolis move is accepted or false otherwise
+    """
     Lx,Ly = size(c)
     nx = rand(1:Lx)
     ny = rand(1:Ly)
@@ -40,7 +44,7 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, 
     w = exp(-β * deltaE)
     bool= false
     if ( rand() < w)
-        c[nx,ny] = !c[nx,ny]
+        c[nx,ny] = !c[nx,ny] #Flipping spin at nx,ny
         bool= true
     end
     return  bool
