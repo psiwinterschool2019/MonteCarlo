@@ -139,4 +139,23 @@ function meas_stat(v_binned::Array{T,1}) where T <: Number
     return (μ, sqrt(v))
 end
 
+function mean_stdev_vs_binlength(data::AbstractVector{Float64}, length_bin_array::AbstractVector{Int})
+    """
+    this function takes in a raw data array and array for the values of bin lengths.
+    For each bin length it measures the statistics and adds to them to arrays ready to be plotted vs bin lengths.  
+    """
+     meanarr=[]
+     stdevarr=[]
+    
+    for n in length_bin_array
+        tnbin=length(data)÷n
+        databinned = make_bins(data,n)
+        mean, stdev = meas_stat(databinned)
+        push!(meanarr,mean) 
+        push!(stdevarr,stdev)
+    end
+    
+    return meanarr,stdevarr
+end
+
 end
