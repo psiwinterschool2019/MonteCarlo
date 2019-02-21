@@ -162,6 +162,53 @@ function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float
         return data_list, accept_ratio
 end
 
+function sampledata_clusterupdate(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, J::Float64; c_init = nothing, meas_func = nothing)
+        #sampledata that takes the following as arguments
+        # Lx, Ly: dimensions of system
+        #n_sweeps: number of sweeps
+        #β: 1/Temperature
+        #
+        # Jx, Jy: couplings
+        #h: external field strength
+        # c_init: BitArray representing initial configuration
+        # meas_func: Function that calculates observable for each config
+        #---------------------------------------------------------------
+        """
+            returns measured data array and mean ratio of the clusters with respect to the system size
+        """
+        if c_init == nothing
+            c_init = bitrand(Lx,Ly)
+        end
+        if (Lx, Ly) != size(c_init)
+            @error "Wrong configuration size or choice"
+        end
+        #work on copy of initial configuration
+        config = copy(c_init)
+        N = Lx*Ly
+        data_list = zeros(n_sweeps)
+        size_ratio = 0.0 #ratio size of cluster
+        number_updates = 0 #count the number of the updates
+        # n_sweeps of one cluster update
+        for i  in 1:n_sweeps
+            sweep_ratio = 0.0
+            while sweep_ratio < 1 #as long as the size of the updated clusters is less than the system size
+                sweep_ratio += cluster_update!(config, β, J)
+                number_updates += 1
+            end
+            
+            size_ratio += sweep_ratio
+            
+            if meas_func == nothing
+                observable = NaN
+            else
+                observable = meas_func(config, J, J, 0.0)
+            end
+            data_list[i] = observable
+        end
+        size_ratio = size_ratio/number_updates
+        return data_list, size_ratio
+end
+
 function make_bins(v::Array{T,1}, bin_length::Int64) where T<:Number
     
     nbins = length(v)÷bin_length
