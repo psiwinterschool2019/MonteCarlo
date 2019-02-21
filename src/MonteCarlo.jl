@@ -76,6 +76,10 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, Jx::Float64, Jy::Float64,
 end
 
 function cluster_update!(c::AbstractArray{Bool}, beta::Float64, J::Float64)
+    """
+    Implementing cluster update algorithm
+    return: the ratio size of the clusters with respect to the system size
+    """
     Lx, Ly = size(c)
     N_spins = Lx*Ly
     
