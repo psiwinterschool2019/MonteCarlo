@@ -8,7 +8,7 @@ spin(b::Bool) = Float64(2 * b - 1)
 neighbours(nx::Int, ny::Int, Lx::Int, Ly::Int) = ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
     (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
 
-function local_energy(c::AbstractMatrix{Bool}, nx::Int, ny::Int, h::Float64, Jx::Float64, Jy::Float64)
+function local_energy(c::AbstractMatrix{Bool}, nx::Int, ny::Int, Jx::Float64, Jy::Float64, h::Float64)
     """
   returns: the local energy (wrt to nearest neighbours) of the spin configuration
     """
@@ -22,7 +22,7 @@ function local_energy(c::AbstractMatrix{Bool}, nx::Int, ny::Int, h::Float64, Jx:
     return E
 end
 
-function energy(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64  )
+function energy(c::AbstractMatrix{Bool}, Jx::Float64, Jy::Float64, h::Float64)
     """
   returns: the total energy of the spin configuration
     """
@@ -48,14 +48,14 @@ function magnetization(c::AbstractMatrix{Bool})
     return mean_magnetization
 end
 
-function meas_mag(c::AbstractMatrix{Bool}, h::Float64, Jx::Float64, Jy::Float64)  
+function meas_mag(c::AbstractMatrix{Bool}, Jx::Float64, Jy::Float64, h::Float64)
     """
     returns: mean magnetization of the spin configuration
     """
     return magnetization(c)
 end
 
-function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, Jy::Float64)
+function update!(c::AbstractMatrix{Bool}, β::Float64, Jx::Float64, Jy::Float64, h::Float64)
     """
   Do one flip (random one single-spin update):
   returns: true if the metropolis move is accepted or false otherwise
@@ -63,7 +63,7 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, h::Float64, Jx::Float64, 
     Lx,Ly = size(c)
     nx = rand(1:Lx)
     ny = rand(1:Ly)
-    deltaE = - 2*local_energy(c,nx,ny,h,Jx,Jy) #variation
+    deltaE = - 2*local_energy(c,nx,ny,Jx,Jy,h) #variation
     
     w = exp(-β * deltaE)
     accepted = false
@@ -103,7 +103,7 @@ function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float
         # n_sweeps of N flips (one sweep)
         for i  in 1:n_sweeps
             for j in 1:N
-                bool = update!(config, β, h, Jx, Jy)
+                bool = update!(config, β, Jx, Jy, h)
                 if bool
                     accept_ratio += 1.0
                 end
@@ -111,7 +111,7 @@ function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float
             if meas_func == nothing
                 observable = NaN
             else
-                observable = meas_func(config, h, Jx, Jy)
+                observable = meas_func(config, Jx, Jy, h)
             end
             data_list[i] = observable
         end
