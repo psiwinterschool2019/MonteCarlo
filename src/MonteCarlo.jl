@@ -43,7 +43,7 @@ function magnetization(c::AbstractMatrix{Bool})
     """
     Lx,Ly=size(c)
     N=Lx*Ly
-    mean_magnetization = sum(spin.(c))/N
+    mean_magnetization = 2*count(c)/N - 1.0
    
     return mean_magnetization
 end
