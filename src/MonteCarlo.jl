@@ -28,14 +28,15 @@ function energy(c::AbstractMatrix{Bool}, Jx::Float64, Jy::Float64, h::Float64)
     """
     Lx,Ly= size(c)
     E=0.0
-    m = spin.(c) 
+     
     for k in 1:Lx, j in 1:Ly
-        E-= h* m[k,j]
-        E-= Jx* m[k,j]* m[mod1(k+1,Lx),j]
-        E-= Jy* m[k,j]* m[k,mod1(j+1,Ly)]
+        E-= h* spin(c[k,j])
+        E-= Jx* spin(c[k,j])* spin(c[mod1(k+1,Lx),j])
+        E-= Jy* spin(c[k,j])* spin(c[k,mod1(j+1,Ly)])
     end
     return E
 end
+
 
 function magnetization(c::AbstractMatrix{Bool})  
     """
