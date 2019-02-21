@@ -75,6 +75,45 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, Jx::Float64, Jy::Float64,
     
 end
 
+function cluster_update!(c::AbstractArray{Bool}, beta::Float64, J::Float64)
+    Lx, Ly = size(c)
+    N_spins = Lx*Ly
+    
+    #Choosing a random site
+    nx = rand(1:Lx)
+    ny = rand(1:Ly)
+    
+    checklist = falses(Lx, Ly)
+    checklist[nx, ny] = true
+
+    cluster = [(nx,ny)]
+    
+    #Wolff cluster update algorithm
+    counter = 1
+    while count(checklist) < N_spins && counter > 0 #as fas as you haven't checked all the spins
+        counter = 0
+        for (a,b) in cluster #loop over the spin in the cluster
+            nn = neighbours(a, b, Lx, Ly)
+            for i=1:4 #loop over the neighbours
+               if !checklist[nn[i][1], nn[i][2]] #check if the neibouring spin wasn't visited
+                    checklist[nn[i][1], nn[i][2]] = true #make sure we know it is visited
+                    if c[a, b] == c[nn[i][1], nn[i][2]] && rand() < (1-exp(-2*beta*J)) #check if the spin are aligned and turn the dice
+                        push!(cluster, nn[i]) #add the lucky neighbour to the cluster domain
+                        counter += 1
+                    end
+                end
+            end
+        end
+    end
+        
+    #flipping all the spins in the cluster
+    for (a,b) in cluster
+        c[a,b] = !c[a,b] #flip the lucky spins
+    end
+    
+    return length(cluster)/N_spins #return the ratio size of the cluster     
+end
+
 function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float64, Jy::Float64, h::Float64; c_init = nothing, meas_func = nothing)
         #sampledata that takes the following as arguments
         # Lx, Ly: dimensions of system
