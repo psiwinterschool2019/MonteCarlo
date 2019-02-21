@@ -122,10 +122,8 @@ function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float
         #sampledata that takes the following as arguments
         # Lx, Ly: dimensions of system
         #n_sweeps: number of sweeps
-        #β: 1/Temperature
-        #
-        # Jx, Jy: couplings
-        #h: external field strength
+        # β: 1/Temperature
+        # J: Isotropic coupling
         # c_init: BitArray representing initial configuration
         # meas_func: Function that calculates observable for each config
         #---------------------------------------------------------------
