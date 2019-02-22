@@ -185,16 +185,8 @@ function sampledata_clusterupdate(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Floa
         N = Lx*Ly
         data_list = zeros(n_sweeps)
         size_ratio = 0.0 #ratio size of cluster
-        number_updates = 0 #count the number of the updates
-        # n_sweeps of one cluster update
         for i  in 1:n_sweeps
-            sweep_ratio = 0.0
-            while sweep_ratio < 1 #as long as the size of the updated clusters is less than the system size
-                sweep_ratio += cluster_update!(config, β, J)
-                number_updates += 1
-            end
-            
-            size_ratio += sweep_ratio
+            size_ratio += cluster_update!(config, β, J)
             
             if meas_func == nothing
                 observable = NaN
@@ -203,7 +195,7 @@ function sampledata_clusterupdate(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Floa
             end
             data_list[i] = observable
         end
-        size_ratio = size_ratio/number_updates
+        size_ratio = size_ratio/n_sweeps
         return data_list, size_ratio
 end
 
