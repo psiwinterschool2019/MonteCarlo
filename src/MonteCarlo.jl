@@ -277,6 +277,16 @@ function neighbours_replica(nx::Int,ny::Int,Lx::Int,Ly::Int,l::Int)
     end
 end
 
+function neighbours_doublecopy(nx::Int64,ny::Int64,Lx::Int64,Ly::Int64, l::Int64)
+    #new neighbour function for double copy topology
+    #Lx and Ly is length of a single system
+    if ny<=Ly
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
+    else
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), (nx, mod1(ny+1, Ly)+Ly), (nx, mod1(ny-1, Ly)+Ly))
+    end 
+end
+
 function local_ratio(c::AbstractArray{Bool}, J::Float64, beta::Float64, l::Int64 ,Lx::Int64, Ly::Int64)
     E_top = -J*(spin(c[l+1, Ly])*spin(c[l+1, Ly+1]) + spin(c[l+1, 1])*spin(c[l+1, 2*Ly]))
     E_bottom =  -J*(spin(c[l+1, 1])*spin(c[l+1, Ly]) + spin(c[l+1, Ly+1])*spin(c[l+1, 2*Ly]))
