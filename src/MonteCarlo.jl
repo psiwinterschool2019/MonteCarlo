@@ -258,4 +258,20 @@ function discrete_hist(raw_data::Array{T,1}, sorted::Bool = false) where T <: Nu
 
 end
 
+function neighbours_replica(nx::Int,ny::Int,Lx::Int,Ly::Int,l::Int)
+    #new neighbour function for replica topology
+    #Lx and Ly is length of a single system
+    #l is the length of subsystem
+    if nx<=l
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
+    (nx, mod1(ny+1, 2*Ly)), (nx, mod1(ny-1, 2*Ly)))
+    elseif ny<=Ly
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
+    (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
+    else 
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
+    (nx, mod1(ny-Ly+1, Ly)+Ly), (nx, mod1(ny-Ly-1, Ly)+Ly))
+    end
+end
+
 end
