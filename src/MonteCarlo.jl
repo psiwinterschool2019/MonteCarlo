@@ -273,7 +273,7 @@ function neighbours_replica(nx::Int,ny::Int,Lx::Int,Ly::Int,l::Int)
     (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
     else 
         return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
-    (nx, mod1(ny-Ly+1, Ly)+Ly), (nx, mod1(ny-Ly-1, Ly)+Ly))
+    (nx, mod1(ny+1, Ly)+Ly), (nx, mod1(ny-1, Ly)+Ly))
     end
 end
 
