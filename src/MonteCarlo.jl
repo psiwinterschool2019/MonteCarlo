@@ -88,35 +88,33 @@ function cluster_update!(c::AbstractArray{Bool}, beta::Float64, J::Float64)
     nx = rand(1:Lx)
     ny = rand(1:Ly)
     
-    checklist = falses(Lx, Ly)
-    checklist[nx, ny] = true
-
-    cluster = [(nx,ny)]
+    #Getting the direction of the random spin
+    refspin = c[nx,ny] #defining the direction of the potential cluster
+    oppspin = !c[nx,ny] #defining the opposite direction
     
-    #Wolff cluster update algorithm
-    counter = 1
-    while count(checklist) < N_spins && counter > 0 #as fas as you haven't checked all the spins
-        counter = 0
-        for (a,b) in cluster #loop over the spin in the cluster
-            nn = neighbours(a, b, Lx, Ly)
-            for i=1:4 #loop over the neighbours
-               if !checklist[nn[i][1], nn[i][2]] #check if the neibouring spin wasn't visited
-                    checklist[nn[i][1], nn[i][2]] = true #make sure we know it is visited
-                    if c[a, b] == c[nn[i][1], nn[i][2]] && rand() < (1-exp(-2*beta*J)) #check if the spin are aligned and turn the dice
-                        push!(cluster, nn[i]) #add the lucky neighbour to the cluster domain
-                        counter += 1
-                    end
-                end
+    c[nx,ny] = oppspin #flipping the random spin
+    
+    stack = [(nx,ny)] #List of spins to be visited
+    num_tobevisited = 1
+    
+    size_cluster = 1 #size of the cluster
+    
+    while num_tobevisited > 0 #as long as the number of spins to be visited is > 0
+        current_spin = stack[num_tobevisited] #current spin is the last spin in the stack array
+        pop!(stack)
+        num_tobevisited -= 1
+        
+        nns = neighbours(current_spin[1], current_spin[2], Lx, Ly)
+        for (a,b) in nns
+            if c[a,b] == refspin && rand() < (1-exp(-2*beta*J))
+                push!(stack, (a,b))
+                num_tobevisited += 1
+                c[a,b] = oppspin 
+                size_cluster +=1
             end
         end
-    end
-        
-    #flipping all the spins in the cluster
-    for (a,b) in cluster
-        c[a,b] = !c[a,b] #flip the lucky spins
-    end
-    
-    return length(cluster)/N_spins #return the ratio size of the cluster     
+    end 
+    return size_cluster/N_spins
 end
 
 function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float64, Jy::Float64, h::Float64; c_init = nothing, meas_func = nothing)
