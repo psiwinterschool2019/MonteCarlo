@@ -251,4 +251,20 @@ function mean_stdev_vs_binlength(data::AbstractVector{Float64}, length_bin_array
     
 end
 
+function discrete_hist(raw_data::Array{T,1}, sorted::Bool = false) where T <: Number
+    
+    d = proportionmap(raw_data)
+    
+    x = collect(keys(d))
+    y = collect(values(d))
+    
+    if sorted
+        ind_sort = sortperm(x)
+        return (x[ind_sort], y[ind_sort])
+    else
+        return (x, y)
+    end
+
+end
+
 end
