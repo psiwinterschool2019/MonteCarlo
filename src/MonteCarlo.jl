@@ -277,4 +277,19 @@ function neighbours_replica(nx::Int,ny::Int,Lx::Int,Ly::Int,l::Int)
     end
 end
 
+function local_ratio(c::AbstractArray{Bool}, J::Float64, beta::Float64, l::Int64 ,Lx::Int64, Ly::Int64)
+    E_top = -J*(spin(c[l+1, Ly])*spin(c[l+1, Ly+1]) + spin(c[l+1, 1])*spin(c[l+1, 2*Ly]))
+    E_bottom =  -J*(spin(c[l+1, 1])*spin(c[l+1, Ly]) + spin(c[l+1, Ly+1])*spin(c[l+1, 2*Ly]))
+    
+    return exp(-beta*(E_top-E_bottom))
+end
+
+function ratio(c::AbstractArray{Bool}, J::Float64, beta::Float64, l::Int64, delta::Int64 ,Lx::Int64, Ly::Int64)
+    ratio = 1.0
+    for i=l:l+delta-1
+        ratio *= local_ratio(c, J, beta, i, Lx, Ly)
+    end
+    return ratio
+end
+
 end
