@@ -3,6 +3,7 @@ module MonteCarlo
 using Random
 using Statistics
 using StatsBase
+using Plots
 
 spin(b::Bool) = Float64(2 * b - 1)
 
@@ -225,8 +226,9 @@ function mean_stdev_vs_binlength(data::AbstractVector{Float64}, length_bin_array
     this function takes in a raw data array and array for the values of bin lengths.
     For each bin length it measures the statistics and adds to them to arrays which are them plotted vs bin lengths.  
     """
-     meanarr=[]
-     stdevarr=[]
+    
+    meanarr=[]
+    stdevarr=[]
     
     for n in length_bin_array
         tnbin=length(data)÷n
@@ -235,7 +237,8 @@ function mean_stdev_vs_binlength(data::AbstractVector{Float64}, length_bin_array
         push!(meanarr,mean) 
         push!(stdevarr,stdev)
     end
-    Plots.plot(length_bin_array, meanarr, yerror= stdevarr)
+    
+    Plots.plot(length_bin_array, meanarr, yerror=stdevarr, legend=false)
     xlabel!("bin length")
     ylabel!("m")
     title!("Mean magnetization vs bin length")
