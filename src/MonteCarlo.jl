@@ -78,7 +78,7 @@ function update!(c::AbstractMatrix{Bool}, β::Float64, Jx::Float64, Jy::Float64,
     
 end
 
-function cluster_update!(c::AbstractArray{Bool}, beta::Float64, J::Float64)
+function cluster_update!(c::AbstractArray{Bool}, stack::Vector{Tuple{Int,Int}}, beta::Float64, J::Float64)
     """
     Implementing cluster update algorithm
     return: the ratio size of the updated cluster with respect to the system size
@@ -96,21 +96,20 @@ function cluster_update!(c::AbstractArray{Bool}, beta::Float64, J::Float64)
     
     c[nx,ny] = oppspin #flipping the random spin
     
-    stack = [(nx,ny)] #List of spins to be visited
-    num_tobevisited = 1
+    if !isempty(stack)
+        @error "stack was not empty"
+    end
+    push!(stack,(nx,ny)) #List of spins to be visited
     
     size_cluster = 1 #size of the cluster
     
-    while num_tobevisited > 0 #as long as the number of spins to be visited is > 0
-        current_spin = stack[num_tobevisited] #current spin is the last spin in the stack array
-        pop!(stack)
-        num_tobevisited -= 1
+    while length(stack) > 0 #as long as the number of spins to be visited is > 0
+        current_spin = pop!(stack) #current spin is the last spin in the stack array      
         
         nns = neighbours(current_spin[1], current_spin[2], Lx, Ly)
         for (a,b) in nns
             if c[a,b] == refspin && rand() < (1-exp(-2*beta*J))
                 push!(stack, (a,b))
-                num_tobevisited += 1
                 c[a,b] = oppspin 
                 size_cluster +=1
             end
@@ -118,6 +117,7 @@ function cluster_update!(c::AbstractArray{Bool}, beta::Float64, J::Float64)
     end 
     return size_cluster/N_spins
 end
+
 
 function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float64, Jy::Float64, h::Float64; c_init = nothing, meas_func = nothing)
         #sampledata that takes the following as arguments
@@ -164,7 +164,7 @@ function sampledata(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, Jx::Float
         return data_list, accept_ratio
 end
 
-function sampledata_clusterupdate(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Float64, J::Float64; c_init = nothing, meas_func = nothing)
+function sampledata_clusterupdate(Lx::Int64, Ly::Int64,n_sweeps::Int64, beta::Float64, J::Float64; c_init = nothing, meas_func = nothing)
         #sampledata that takes the following as arguments
         # Lx, Ly: dimensions of system
         #n_sweeps: number of sweeps
@@ -187,8 +187,9 @@ function sampledata_clusterupdate(Lx::Int64, Ly::Int64,n_sweeps::Int64, β::Floa
         N = Lx*Ly
         data_list = zeros(n_sweeps)
         size_ratio = 0.0 #ratio size of cluster
+        stack = Tuple{Int, Int}[]
         for i  in 1:n_sweeps
-            size_ratio += cluster_update!(config, β, J)
+            size_ratio += cluster_update!(config, stack, beta, J)
             
             if meas_func == nothing
                 observable = NaN
