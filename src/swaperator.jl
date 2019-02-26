@@ -102,7 +102,7 @@ end
 
 end
 
-# An example to how to use this model to extract Renyi Entropy---------------------------------------------------------------------------
+# An example to how to use this module to extract Renyi Entropy---------------------------------------------------------------------------
 Lx = 20
 Ly = 100
 beta = 1/2.269
