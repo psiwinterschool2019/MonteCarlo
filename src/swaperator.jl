@@ -31,7 +31,7 @@ function neighbours_replica(nx::Int,ny::Int,Lx::Int,Ly::Int,l::Int)
 end
 
 function local_ratio(c::AbstractArray{Bool}, J::Float64, beta::Float64, l::Int64)
-    # c : spin configuration of the double copy
+    # c : a bitarray representing the spin configuration of the double copy
     # J: isotropic spin-spin coupling
     # beta : inverse temperature
     # l : size of the subsystem A
