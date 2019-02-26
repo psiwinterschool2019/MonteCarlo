@@ -2,6 +2,8 @@ module swaperator
 
 using Random
 
+spin(b::Bool) = Float64(2 * b - 1)
+
 function neighbours_doublecopy(nx::Int64,ny::Int64,Lx::Int64,Ly::Int64, l::Int64)
     #new neighbour function for double copy topology
     #Lx and Ly is length of a single copy
