@@ -1,5 +1,61 @@
 module swaperator
 
+using Random
+
+function neighbours_doublecopy(nx::Int64,ny::Int64,Lx::Int64,Ly::Int64, l::Int64)
+    #new neighbour function for double copy topology
+    #Lx and Ly is length of a single copy
+    if ny<=Ly
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
+    else
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), (nx, mod1(ny+1, Ly)+Ly), (nx, mod1(ny-1, Ly)+Ly))
+    end 
+end
+
+function neighbours_replica(nx::Int,ny::Int,Lx::Int,Ly::Int,l::Int)
+    #new neighbour function for replica topology
+    #Lx and Ly is length of a single copy
+    #l is the length of subsystem
+    if nx<=l
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
+    (nx, mod1(ny+1, 2*Ly)), (nx, mod1(ny-1, 2*Ly)))
+    elseif ny<=Ly
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
+    (nx, mod1(ny+1, Ly)), (nx, mod1(ny-1, Ly)))
+    else 
+        return ((mod1(nx+1, Lx), ny), (mod1(nx-1, Lx), ny), 
+    (nx, mod1(ny+1, Ly)+Ly), (nx, mod1(ny-1, Ly)+Ly))
+    end
+end
+
+function local_ratio(c::AbstractArray{Bool}, J::Float64, beta::Float64, l::Int64)
+    # c : spin configuration of the double copy
+    # J: isotropic spin-spin coupling
+    # beta : inverse temperature
+    # l : size of the subsystem A
+        """
+        returns the ratio W(l+1)/W(l)
+        """
+    Lx,Ly = size(c)
+    Ly = floor(Int, Ly/2)
+    E_top = -J*(spin(c[l+1, Ly])*spin(c[l+1, Ly+1]) + spin(c[l+1, 1])*spin(c[l+1, 2*Ly]))
+    E_bottom =  -J*(spin(c[l+1, 1])*spin(c[l+1, Ly]) + spin(c[l+1, Ly+1])*spin(c[l+1, 2*Ly]))
+    
+    return exp(-beta*(E_top-E_bottom))
+end
+
+function ratio(c::AbstractArray{Bool}, J::Float64, beta::Float64, l::Int64, delta::Int64)
+        """
+        returns the ratio W(l+delta)/W(l)
+        """
+        ratio = 1.0
+        for i=l:l+delta-1
+        ratio *= local_ratio(c, J, beta, i)
+        end
+        return ratio
+end
+
+
 function swaperator_samples(Lx::Int64, Ly::Int64,n_sweeps::Int64, beta::Float64, J::Float64, l::Int64, delta::Int64; c_init = nothing, meas_func = nothing, neighbours_topology = nothing)
         #sampledata that takes the following as arguments
         # Lx, Ly: dimensions of the double copy (Lx,Ly/2 are then the dimensions of each copy)
@@ -32,7 +88,7 @@ function swaperator_samples(Lx::Int64, Ly::Int64,n_sweeps::Int64, beta::Float64,
             if meas_func == nothing
                 observable = NaN
             else
-                observable = meas_func(config, beta, J, l, delta)
+                observable = meas_func(config, beta, J, l, delta) #an example of such a meas function can be "ratio"
             end
             data_list[i] = observable
         end
