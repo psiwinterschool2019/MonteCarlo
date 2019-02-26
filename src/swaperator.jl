@@ -121,25 +121,25 @@ n_sweeps = 500000
 ratios, acceptance_rate = swaperator_samples(Lx, 2*Ly, n_sweeps, beta, J, 0, 0; meas_func = ratio)
 R_bin = make_bins(ratios, 100)
 mean_R, std_R = meas_stat(R_bin)
-println(mean_R) #to show progress
+println(mean_R) #to monitor progress
 S -= log(mean_R)
 push!(Renyi2, S)
 S_error = sqrt(S_error^2 + std_R^2/mean_R^2) #error propagation through the log
 push!(Renyi2_error, S_error)
-println(S_error) #to show progress
+println(S_error) #to monitor progress
 
 #looping over the subsystem size (incrementing by delta each time)
 for l=0:delta:Lx-2
     ratios, acceptance_rate = swaperator_samples(Lx, 2*Ly, n_sweeps, beta, J, l, delta; meas_func = ratio)
-    R_bin = make_bins(ratios, 100)
+    R_bin = make_bins(ratios, 100) # this function can be found in the MonteCarlo module
 
-    mean_R, std_R = meas_stat(R_bin)
-    println(mean_R)
+    mean_R, std_R = meas_stat(R_bin) # this function can be found in the MonteCarlo module
+    println(mean_R) #to monitor progress
     S -= log(mean_R)
     push!(Renyi2, S)
     
     S_error = sqrt(S_error^2 + std_R^2/mean_R^2) #error propagation through the log
-    println(S_error)
+    println(S_error) #to monitor
     push!(Renyi2_error, S_error)
 end
 
