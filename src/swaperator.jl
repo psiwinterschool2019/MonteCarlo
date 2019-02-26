@@ -85,7 +85,7 @@ function swaperator_samples(Lx::Int64, Ly::Int64,n_sweeps::Int64, beta::Float64,
         size_ratio = 0.0 #ratio size of cluster
         stack = Tuple{Int, Int}[]
         for i  in 1:n_sweeps
-            size_ratio += cluster_update!(config, stack, beta, J, l)
+            size_ratio += cluster_update!(config, stack, beta, J, l) #cluster_update can be found in the MonteCarlo module
             
             if meas_func == nothing
                 observable = NaN
