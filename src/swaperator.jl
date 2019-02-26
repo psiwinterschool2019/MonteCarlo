@@ -99,8 +99,7 @@ function swaperator_samples(Lx::Int64, Ly::Int64,n_sweeps::Int64, beta::Float64,
 end
 
 
-
-end
+end #end module
 
 # An example to how to use this module to extract Renyi Entropy---------------------------------------------------------------------------
 Lx = 20
