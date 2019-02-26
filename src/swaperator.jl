@@ -99,4 +99,51 @@ function swaperator_samples(Lx::Int64, Ly::Int64,n_sweeps::Int64, beta::Float64,
 end
 
 
-end 
+
+end
+
+# An example to how to use this model to extract Renyi Entropy---------------------------------------------------------------------------
+Lx = 20
+Ly = 100
+beta = 1/2.269
+J = 1.0
+
+l = 0
+delta = 2
+Renyi2 = []
+Renyi2_error = []
+S = 0.0
+S_error = 0.0
+
+n_sweeps = 500000
+
+#A sanity check: the 2-Renyi entropy should be zero for l = 0 and delta = 0
+ratios, acceptance_rate = swaperator_samples(Lx, 2*Ly, n_sweeps, beta, J, 0, 0; meas_func = ratio)
+R_bin = make_bins(ratios, 100)
+mean_R, std_R = meas_stat(R_bin)
+println(mean_R) #to show progress
+S -= log(mean_R)
+push!(Renyi2, S)
+S_error = sqrt(S_error^2 + std_R^2/mean_R^2) #error propagation through the log
+push!(Renyi2_error, S_error)
+println(S_error) #to show progress
+
+#looping over the subsystem size (incrementing by delta each time)
+for l=0:delta:Lx-2
+    ratios, acceptance_rate = swaperator_samples(Lx, 2*Ly, n_sweeps, beta, J, l, delta; meas_func = ratio)
+    R_bin = make_bins(ratios, 100)
+
+    mean_R, std_R = meas_stat(R_bin)
+    println(mean_R)
+    S -= log(mean_R)
+    push!(Renyi2, S)
+    
+    S_error = sqrt(S_error^2 + std_R^2/mean_R^2) #error propagation through the log
+    println(S_error)
+    push!(Renyi2_error, S_error)
+end
+
+plot(0:2:Lx,Renyi2, yerror=Renyi2_error, ylims=(0,0.65), legend = false, xaxis =  (font(15, "Calibri")), yaxis =  (font(15, "Calibri")))
+ylabel!("Renyi Entropy")
+xlabel!("Subsystem size")
+#End example ------------------------------------------------------------------------------------------------------------------
